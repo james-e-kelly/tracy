@@ -110,11 +110,11 @@ bool View::DrawConnection()
         ImGui::Separator();
         if( fi->flip )
         {
-            ImGui::Image( m_frameTextureConn, ImVec2( fi->w * fiScale, fi->h * fiScale ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) );
+            ImGui::Image((ImTextureID)(intptr_t)m_frameTextureConn, ImVec2( fi->w * fiScale, fi->h * fiScale ), ImVec2( 0, 1 ), ImVec2( 1, 0 ) );
         }
         else
         {
-            ImGui::Image( m_frameTextureConn, ImVec2( fi->w * fiScale, fi->h * fiScale ) );
+            ImGui::Image((ImTextureID)(intptr_t)m_frameTextureConn, ImVec2( fi->w * fiScale, fi->h * fiScale ) );
         }
     }
 
