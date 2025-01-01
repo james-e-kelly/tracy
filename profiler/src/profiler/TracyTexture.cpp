@@ -17,26 +17,8 @@
 namespace tracy
 {
 
-static bool s_hardwareS3tc;
-
 void InitTexture()
 {
-#ifdef __EMSCRIPTEN__
-    s_hardwareS3tc = emscripten_webgl_enable_extension( emscripten_webgl_get_current_context(), "WEBGL_compressed_texture_s3tc" );
-#else
-    s_hardwareS3tc = false;
-    GLint num;
-    glGetIntegerv( GL_NUM_EXTENSIONS, &num );
-    for( GLint i=0; i<num; i++ )
-    {
-        auto ext = (const char*)glGetStringi( GL_EXTENSIONS, GLuint( i ) );
-        if( strcmp( ext, "GL_EXT_texture_compression_s3tc" ) == 0 )
-        {
-            s_hardwareS3tc = true;
-            break;
-        }
-    }
-#endif
 }
 
 ImTextureID MakeTexture( bool zigzag )
@@ -143,28 +125,22 @@ void UpdateTexture( ImTextureID _tex, const char* data, int w, int h )
 {
     auto tex = (GLuint)_tex;
     glBindTexture( GL_TEXTURE_2D, tex );
-    if( s_hardwareS3tc )
+    
+    auto tmp = new uint32_t[w*h];
+    auto src = (const uint64_t*)data;
+    auto dst = tmp;
+    for( int y=0; y<h/4; y++ )
     {
-        glCompressedTexImage2D( GL_TEXTURE_2D, 0, COMPRESSED_RGB_S3TC_DXT1_EXT, w, h, 0, w * h / 2, data );
-    }
-    else
-    {
-        auto tmp = new uint32_t[w*h];
-        auto src = (const uint64_t*)data;
-        auto dst = tmp;
-        for( int y=0; y<h/4; y++ )
+        for( int x=0; x<w/4; x++ )
         {
-            for( int x=0; x<w/4; x++ )
-            {
-                uint64_t d = *src++;
-                DecodeDxt1Part( d, dst, w );
-                dst += 4;
-            }
-            dst += w*3;
+            uint64_t d = *src++;
+            DecodeDxt1Part( d, dst, w );
+            dst += 4;
         }
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp );
-        delete[] tmp;
+        dst += w*3;
     }
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp );
+    delete[] tmp;
 }
 
 void UpdateTextureRGBA( ImTextureID _tex, void* data, int w, int h )
