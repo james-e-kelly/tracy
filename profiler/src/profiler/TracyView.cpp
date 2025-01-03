@@ -817,7 +817,11 @@ bool View::DrawImpl()
             if( m_forceConnectionPopup )
             {
                 m_forceConnectionPopup.Decay( false );
+#ifndef TRACY_NO_ROOT_WINDOW
                 ImGui::SetNextWindowPos( viewport->Pos + ImGui::GetCursorPos() );
+#else
+                ImGui::SetNextWindowPos( ImGui::GetCursorPos() );
+#endif
             }
             ImGui::OpenPopup( "TracyConnectionPopup" );
         }
