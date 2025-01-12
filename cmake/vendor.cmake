@@ -250,6 +250,6 @@ endif()
 CPMAddPackage(
     NAME PPQSort
     GITHUB_REPOSITORY foxtran/PPQSort
-    VERSION master
+    GIT_TAG master
     EXCLUDE_FROM_ALL TRUE
 )
